@@ -97,11 +97,11 @@ namespace mz {
         constexpr mz_force_inline vec2(rhs_value_t ptr[2]) : ptr(ptr) {}
         constexpr mz_force_inline vec2(value_t scalar) : x(scalar), y(scalar) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec2(const vec2<rhs_value_t>& v2) : x(v2.x), y(v2.y) {}
+        constexpr mz_force_inline vec2(const vec2<rhs_value_t>& v2) : x((value_t)v2.x), y((value_t)v2.y) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec2(const vec3<rhs_value_t>& v3) : x(v3.x), y(v3.y) {}
+        constexpr mz_force_inline vec2(const vec3<rhs_value_t>& v3) : x((value_t)v3.x), y((value_t)v3.y) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec2(const vec4<rhs_value_t>& v4) : x(v4.x), y(v4.y) {}
+        constexpr mz_force_inline vec2(const vec4<rhs_value_t>& v4) : x((value_t)v4.x), y((value_t)v4.y) {}
 
         union {
             value_t ptr[2];
@@ -134,8 +134,8 @@ namespace mz {
             } else {
                 x += rhs.x;
                 y += rhs.y;
+                return *this;
             }
-            return *this;
         }
         template <typename rhs_vec_t>
         constexpr mz_force_inline vec_type& subtract(const rhs_vec_t& rhs) {
@@ -468,11 +468,11 @@ namespace mz {
         template <typename value_xyz_t, typename value_w_t>
         constexpr mz_force_inline vec4(const vec3<value_xyz_t>& xyz, value_w_t w) : x(xyz.x), y(xyz.y), z(xyz.z), w(w) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec4(const vec2<rhs_value_t>& v2) : x(v2.x), y(v2.y), z(zero), w(zero) {}
+        constexpr mz_force_inline vec4(const vec2<rhs_value_t>& v2) : x((value_t)v2.x), y((value_t)v2.y), z(zero), w(zero) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec4(const vec3<rhs_value_t>& v3) : x(v3.x), y(v3.y), z(v3.z), w(zero) {}
+        constexpr mz_force_inline vec4(const vec3<rhs_value_t>& v3) : x((value_t)v3.x), y((value_t)v3.y), z((value_t)v3.z), w(zero) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec4(const vec4<rhs_value_t>& v4) : x(v4.x), y(v4.y), z(v4.z), w(v4.w) {}
+        constexpr mz_force_inline vec4(const vec4<rhs_value_t>& v4) : x((value_t)v4.x), y((value_t)v4.y), z((value_t)v4.z), w((value_t)v4.w) {}
 
         union {
             value_t ptr[4];

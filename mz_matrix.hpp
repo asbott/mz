@@ -323,14 +323,14 @@ namespace mz {
         }
 
         template <typename value_t>
-        mat4<value_t> perspective(value_t fov, f32 aspectRatio, value_t near, value_t far) {
-            mat4<value_t> result(1.0f);
+        mat4<value_t> perspective(value_t fov, f32 aspectRatio, value_t near_, value_t far_) {
+            mat4<value_t> result((value_t)1);
 
-            value_t q = 1.0f / tan(to_radians(0.5f * fov));
+            value_t q = (value_t)(1.0f / tan(to_radians(0.5f * fov)));
             value_t a = (value_t)((f32)q / aspectRatio);
 
-            value_t b = (near + far) / (near - far);
-            value_t c = (2.0f * near * far) / (near - far);
+            value_t b = (value_t)((near_+ far_) / (near_- far_));
+            value_t c = (value_t)((2.0f * near_* far_) / (near_- far_));
 
             result.data[0 + 0 * 4] = a;
             result.data[1 + 1 * 4] = q;
