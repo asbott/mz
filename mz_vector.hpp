@@ -6,6 +6,8 @@
 
 namespace mz {
 
+    typedef f32 default_value_t;
+
     template <typename value_t>
     struct vec2;
     template <typename value_t>
@@ -70,20 +72,29 @@ namespace mz {
     typedef vec4<s64> lvec4;
     typedef lvec4     s64vec4;
 
-    typedef fvec4     fcolor4;
-    typedef fvec3     fcolor3;
-    typedef dvec4     dcolor4;
-    typedef dvec3     dcolor3;
-    typedef bvec4     icolor4;
-    typedef bvec3     icolor3;
+    typedef fvec4     fcolor16;
+    typedef fvec3     fcolor12;
+    typedef dvec4     dcolor16;
+    typedef dvec3     dcolor12;
+    typedef bvec4     bcolor4;
+    typedef bvec3     bcolor3;
 
-    typedef fcolor4   color4;
-    typedef fcolor4   color3;
-    typedef color4    color;
+    typedef fcolor16   color16;
+    typedef fcolor16   color12;
+    typedef color16    color;
 
-    typedef ivec4     Viewport;
+    typedef bcolor4    color4;
+    typedef bcolor3    color3;
+
+    typedef ivec4     viewport;
 
     template <typename value_t>
+    using rect = vec4<value_t>;
+
+    typedef rect<f32> frect;
+    typedef rect<s32> irect;
+
+    template <typename value_t = default_value_t>
     struct vec2 {
         typedef value_t       value_type;
         typedef vec2<value_t> vec_type;
@@ -92,7 +103,7 @@ namespace mz {
 
         constexpr mz_force_inline vec2() : x(zero), y(zero) {}
         template <typename value_x_t, typename value_y_t>
-        constexpr mz_force_inline vec2(value_x_t x, value_y_t y) : x(x), y(y) {}
+        constexpr mz_force_inline vec2(value_x_t x, value_y_t y) : x((value_t)x), y((value_t)y) {}
         template <typename rhs_value_t>
         constexpr mz_force_inline vec2(rhs_value_t ptr[2]) : ptr(ptr) {}
         constexpr mz_force_inline vec2(value_t scalar) : x(scalar), y(scalar) {}
@@ -132,8 +143,6 @@ namespace mz {
                 vec_type as_same_type = (vec_type)rhs;
                 return add(as_same_type);
             } else {
-                x += rhs.x;
-                y += rhs.y;
                 return *this;
             }
         }
@@ -256,7 +265,7 @@ namespace mz {
         }
     };
 
-    template <typename value_t>
+    template <typename value_t = default_value_t>
     struct vec3 {
         typedef value_t value_type;
         typedef vec3<value_t> vec_type;
@@ -265,18 +274,18 @@ namespace mz {
 
         constexpr mz_force_inline vec3() : x(zero), y(zero) {}
         template <typename value_x_t, typename value_y_t, typename value_z_t>
-        constexpr mz_force_inline vec3(value_x_t x, value_y_t y, value_z_t z) : x(x), y(y), z(z) {}
+        constexpr mz_force_inline vec3(value_x_t x, value_y_t y, value_z_t z) : x((value_t)x), y((value_t)y), z((value_t)z) {}
         template <typename rhs_value_t>
         constexpr mz_force_inline vec3(rhs_value_t ptr[3]) : ptr(ptr) {}
         constexpr mz_force_inline vec3(value_t scalar) : x(scalar), y(scalar), z(scalar) {}
         template <typename value_xy_t, typename value_z_t>
-        constexpr mz_force_inline vec3(const vec2<value_xy_t>& xy, value_z_t z) : x(xy.x), y(xy.y), z(z) {}
+        constexpr mz_force_inline vec3(const vec2<value_xy_t>& xy, value_z_t z) : x((value_t)xy.x), y((value_t)xy.y), z((value_t)z) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec3(const vec2<rhs_value_t>& v2) : x(v2.x), y(v2.y), z(zero) {}
+        constexpr mz_force_inline vec3(const vec2<rhs_value_t>& v2) : x((value_t)v2.x), y((value_t)v2.y), z((value_t)zero) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec3(const vec3<rhs_value_t>& v3) : x(v3.x), y(v3.y), z(v3.z) {}
+        constexpr mz_force_inline vec3(const vec3<rhs_value_t>& v3) : x((value_t)v3.x), y((value_t)v3.y), z((value_t)v3.z) {}
         template <typename rhs_value_t>
-        constexpr mz_force_inline vec3(const vec4<rhs_value_t>& v4) : x(v4.x), y(v4.y), z(v4.z) {}
+        constexpr mz_force_inline vec3(const vec4<rhs_value_t>& v4) : x((value_t)v4.x), y((value_t)v4.y), z((value_t)v4.z) {}
 
         union {
             value_t ptr[3];
@@ -450,7 +459,7 @@ namespace mz {
         }
     };
 
-    template <typename value_t>
+    template <typename value_t = default_value_t>
     struct vec4 {
         typedef value_t value_type;
         typedef vec4<value_t> vec_type;
@@ -459,14 +468,14 @@ namespace mz {
 
         constexpr mz_force_inline vec4() : x(zero), y(zero), z(zero), w(zero) {}
         template <typename value_x_t, typename value_y_t, typename value_z_t, typename value_w_t>
-        constexpr mz_force_inline vec4(value_x_t x, value_y_t y, value_z_t z, value_w_t w) : x(x), y(y), z(z), w(w) {}
+        constexpr mz_force_inline vec4(value_x_t x, value_y_t y, value_z_t z, value_w_t w) : x((value_t)x), y((value_t)y), z((value_t)z), w((value_t)w) {}
         template <typename rhs_value_t>
         constexpr mz_force_inline vec4(rhs_value_t ptr[4]) : ptr(ptr) {}
         constexpr mz_force_inline vec4(value_t scalar) : x(scalar), y(scalar), z(scalar), w(scalar) {}
         template <typename value_xy_t, typename value_z_t, typename value_w_t>
-        constexpr mz_force_inline vec4(const vec2<value_xy_t>& xy, value_z_t z, value_w_t w = (value_w_t)0) : x(xy.x), y(xy.y), z(z), w(w) {}
+        constexpr mz_force_inline vec4(const vec2<value_xy_t>& xy, value_z_t z, value_w_t w = (value_w_t)0) : x((value_t)xy.x), y((value_t)xy.y), z((value_t)z), w((value_t)w) {}
         template <typename value_xyz_t, typename value_w_t>
-        constexpr mz_force_inline vec4(const vec3<value_xyz_t>& xyz, value_w_t w) : x(xyz.x), y(xyz.y), z(xyz.z), w(w) {}
+        constexpr mz_force_inline vec4(const vec3<value_xyz_t>& xyz, value_w_t w) : x((value_t)xyz.x), y((value_t)xyz.y), z((value_t)xyz.z), w((value_t)w) {}
         template <typename rhs_value_t>
         constexpr mz_force_inline vec4(const vec2<rhs_value_t>& v2) : x((value_t)v2.x), y((value_t)v2.y), z(zero), w(zero) {}
         template <typename rhs_value_t>

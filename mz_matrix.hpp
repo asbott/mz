@@ -6,17 +6,6 @@
 
 namespace mz {
 
-    constexpr f64 PI = 3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481;
-
-    template <typename value_t>
-    value_t to_radians(value_t deg) {
-        return deg * PI / (value_t)180;
-    }
-    template <typename value_t>
-    value_t to_degrees(value_t rad) {
-        return rad * (value_t)180 / PI;
-    }
-
     template <typename value_t>
     struct mat4 {
         typedef mat4<value_t> mat_type;
@@ -24,18 +13,9 @@ namespace mz {
         typedef vec3<value_t> vec3_type;
 
         union {
-            vec4_type rows[4];
             value_t data[4 * 4];
+            vec4_type rows[4];
             value_t ptr [4 * 4];
-            struct {
-                vec4_type row1;
-                vec4_type row2;
-                vec4_type row3;
-                union {
-                    vec4_type row4;
-                    vec3_type translation;
-                };
-            };
         };
 
         mz_force_inline mat4() {
@@ -110,12 +90,16 @@ namespace mz {
         }
 
         mz_force_inline mat_type& translate(const vec3_type& amount) {
-            translation += amount;
+            rows[0].w += amount.x;
+            rows[1].w += amount.y;
+            rows[2].w += amount.z;
             return *this;
         }
 
         mz_force_inline mat_type& rotate(value_t angle, const vec3_type& axis) {
-            value_t r = to_radians(angle);
+            mat_type rotation((value_t)1);
+
+            value_t r = angle;
             value_t c = cos(r);
             value_t s = sin(r);
             value_t omc = 1.0f - c;
@@ -124,25 +108,31 @@ namespace mz {
             value_t y = axis.y;
             value_t z = axis.z;
 
-            data[0 + 0 * 4] += x * x * omc + c;
-            data[0 + 1 * 4] += y * x * omc + z * s;
-            data[0 + 2 * 4] += x * z * omc - y * s;
+            rotation.data[0 + 0 * 4] = x * x * omc + c;
+            rotation.data[0 + 1 * 4] = y * x * omc + z * s;
+            rotation.data[0 + 2 * 4] = x * z * omc - y * s;
 
-            data[1 + 0 * 4] += x * y * omc - z * s;
-            data[1 + 1 * 4] += y * y * omc + c;
-            data[1 + 2 * 4] += y * z * omc + x * s;
+            rotation.data[1 + 0 * 4] = x * y * omc - z * s;
+            rotation.data[1 + 1 * 4] = y * y * omc + c;
+            rotation.data[1 + 2 * 4] = y * z * omc + x * s;
 
-            data[2 + 0 * 4] += x * z * omc + y * s;
-            data[2 + 1 * 4] += y * z * omc - x * s;
-            data[2 + 2 * 4] += z * z * omc + c;
+            rotation.data[2 + 0 * 4] = x * z * omc + y * s;
+            rotation.data[2 + 1 * 4] = y * z * omc - x * s;
+            rotation.data[2 + 2 * 4] = z * z * omc + c;
+
+            this->multiply(rotation);
 
             return *this;
         }
 
         mz_force_inline mat_type& scale(const vec3_type& scale) {
-            rows[0].x += scale.x;
-            rows[1].y += scale.y;
-            rows[2].z += scale.z;
+            mat_type mat((value_t)1);
+
+            mat.rows[0].x += scale.x;
+            mat.rows[1].y += scale.y;
+            mat.rows[2].z += scale.z;
+
+            this->multiply(mat);
 
             return *this;
         }
@@ -326,7 +316,7 @@ namespace mz {
         mat4<value_t> perspective(value_t fov, f32 aspectRatio, value_t near_, value_t far_) {
             mat4<value_t> result((value_t)1);
 
-            value_t q = (value_t)(1.0f / tan(to_radians(0.5f * fov)));
+            value_t q = (value_t)(1.0f / tan(0.5f * fov));
             value_t a = (value_t)((f32)q / aspectRatio);
 
             value_t b = (value_t)((near_+ far_) / (near_- far_));
