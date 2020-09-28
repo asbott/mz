@@ -89,6 +89,15 @@ namespace mz {
             return left.multiply(right);
         }
 
+        mz_force_inline vec3_type get_translation() {
+            vec3_type vec (
+                rows[0].w,
+                rows[1].w,
+                rows[2].w
+            );
+            return vec;
+        }
+
         mz_force_inline mat_type& translate(const vec3_type& amount) {
             rows[0].w += amount.x;
             rows[1].w += amount.y;

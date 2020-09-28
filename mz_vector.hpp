@@ -200,6 +200,12 @@ namespace mz {
             return *this;
         }
 
+        constexpr mz_force_inline vec_type operator-() {
+            x = -x;
+            y = -y;
+            return *this;
+        }
+
         template <typename rhs_candidate_t>
         constexpr mz_force_inline friend vec_type operator+(vec_type lhs, const rhs_candidate_t& rhs) {
             return lhs.add(rhs);
@@ -391,6 +397,13 @@ namespace mz {
             x /= rhs;
             y /= rhs;
             z /= rhs;
+            return *this;
+        }
+
+        constexpr mz_force_inline vec_type operator-() {
+            x = -x;
+            y = -y;
+            z = -z;
             return *this;
         }
 
@@ -597,6 +610,14 @@ namespace mz {
             y /= rhs;
             z /= rhs;
             w /= rhs;
+            return *this;
+        }
+
+        constexpr mz_force_inline vec_type operator-() {
+            x = -x;
+            y = -y;
+            z = -z;
+            w = -w;
             return *this;
         }
 
