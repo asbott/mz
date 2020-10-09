@@ -94,6 +94,18 @@ namespace mz {
     typedef rect<f32> frect;
     typedef rect<s32> irect;
 
+    template <typename value_t>
+    using quad = vec4<vec2<value_t>>; 
+
+    typedef quad<f32> fquad;
+    typedef quad<s32> iquad;
+
+    template <typename value_t>
+    using ray2d = vec4<value_t>; 
+
+    typedef ray2d<f32> fray2d;
+    typedef ray2d<s32> iray2d;
+
     template <typename value_t = default_value_t>
     struct vec2 {
         typedef value_t       value_type;
@@ -124,6 +136,9 @@ namespace mz {
         constexpr mz_force_inline value_t magnitude() const {
             return sqrt(x * x + y * y);
         }
+        constexpr mz_force_inline value_t average() const {
+            return (x + y) / (value_t)2;
+        }
         constexpr mz_force_inline vec_type normalize() const {
             value_t mag = magnitude();
             return vec_type(x / mag, y / mag);
@@ -143,6 +158,8 @@ namespace mz {
                 vec_type as_same_type = (vec_type)rhs;
                 return add(as_same_type);
             } else {
+                x += rhs.x;
+                y += rhs.y;
                 return *this;
             }
         }
@@ -157,10 +174,10 @@ namespace mz {
                 return *this;
             }
         }
-        template <typename rhs_vec_t>
-        constexpr mz_force_inline vec_type& multiply(const rhs_vec_t& rhs) {
-            if constexpr (!std::is_same<rhs_vec_t, vec_type>()) {
-                vec_type as_same_type = (vec_type)rhs;
+        template <typename rhs_value_t>
+        constexpr mz_force_inline vec_type& multiply(const vec2<rhs_value_t>& rhs) {
+            if constexpr (!std::is_same<vec2<rhs_value_t>, vec_type>()) {
+                vec_type as_same_type = vec_type((value_t)rhs.x, (value_t)rhs.y);
                 return multiply(as_same_type);
             } else {
                 x *= rhs.x;
@@ -168,10 +185,10 @@ namespace mz {
                 return *this;
             }
         }
-        template <typename rhs_vec_t>
-        constexpr mz_force_inline vec_type& divide(const rhs_vec_t& rhs) {
-            if constexpr (!std::is_same<rhs_vec_t, vec_type>()) {
-                vec_type as_same_type = (vec_type)rhs;
+        template <typename rhs_value_t>
+        constexpr mz_force_inline vec_type& divide(const vec2<rhs_value_t>& rhs) {
+            if constexpr (!std::is_same<vec2<rhs_value_t>, vec_type>()) {
+                vec_type as_same_type = vec_type((value_t)rhs.x, (value_t)rhs.y);
                 return divide(as_same_type);
             } else {
                 x /= rhs.x;
@@ -200,37 +217,38 @@ namespace mz {
             return *this;
         }
 
-        constexpr mz_force_inline vec_type operator-() {
-            x = -x;
-            y = -y;
-            return *this;
+        constexpr mz_force_inline vec_type operator-() const {
+            return vec_type(-x, -y);
         }
 
         template <typename rhs_candidate_t>
         constexpr mz_force_inline friend vec_type operator+(vec_type lhs, const rhs_candidate_t& rhs) {
-            return lhs.add(rhs);
+            if constexpr (std::is_convertible<rhs_candidate_t, value_t>())
+                return lhs.add((value_t)rhs);
+            else 
+                return lhs.add((vec_type)rhs);
         }
         template <typename rhs_candidate_t>
         constexpr mz_force_inline friend vec_type operator-(vec_type lhs, const rhs_candidate_t& rhs) {
-            return lhs.subtract(rhs);
+            if constexpr (std::is_convertible<rhs_candidate_t, value_t>())
+                return lhs.subtract((value_t)rhs);
+            else 
+                return lhs.subtract((vec_type)rhs);
         }
         template <typename rhs_candidate_t>
         constexpr mz_force_inline friend vec_type operator*(vec_type lhs, const rhs_candidate_t& rhs) {
-            return lhs.multiply(rhs);
+            if constexpr (std::is_convertible<rhs_candidate_t, value_t>())
+                return lhs.multiply((value_t)rhs);
+            else 
+                return lhs.multiply((vec_type)rhs);
         }
         template <typename rhs_candidate_t>
         constexpr mz_force_inline friend vec_type operator/(vec_type lhs, const rhs_candidate_t& rhs) {
-            return lhs.divide(rhs);
-        }
-
-        template <typename rhs_value_t>
-        constexpr mz_force_inline bool operator==(const vec2<rhs_value_t>& rhs) const {
-            return x == rhs.x && y == rhs.y;
-        }
-        template <typename rhs_value_t>
-        constexpr mz_force_inline bool operator!=(const vec2<rhs_value_t>& rhs) const {
-            return !(*this == rhs);
-        }
+            if constexpr (std::is_convertible<rhs_candidate_t, value_t>())
+                return lhs.divide((value_t)rhs);
+            else 
+                return lhs.divide((vec_type)rhs);
+        }   
 
         template <typename rhs_candidate_t>
         constexpr mz_force_inline vec_type& operator+=(const rhs_candidate_t& rhs) {
@@ -253,21 +271,56 @@ namespace mz {
             return *this;
         }
 
-        template <typename rhs_vec_t>
-        constexpr mz_force_inline bool operator<(const rhs_vec_t& rhs) const {
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator==(const vec2<rhs_value_t>& rhs) const {
+            return x == rhs.x && y == rhs.y;
+        }
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator!=(const vec2<rhs_value_t>& rhs) const {
+            return !(*this == rhs);
+        }
+
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator==(const rhs_value_t& rhs) const {
+            return this->magnitude() == (value_t)rhs;
+        }
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator!=(const rhs_value_t& rhs) const {
+            return !(*this == rhs);
+        }
+
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator<(const vec2<rhs_value_t>& rhs) const {
             return magnitude() < rhs.magnitude();
         }
-        template <typename rhs_vec_t>
-        constexpr mz_force_inline bool operator<=(const rhs_vec_t& rhs) const {
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator<=(const vec2<rhs_value_t>& rhs) const {
             return magnitude() <= rhs.magnitude();
         }
-        template <typename rhs_vec_t>
-        constexpr mz_force_inline bool operator>(const rhs_vec_t& rhs) const {
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator>(const vec2<rhs_value_t>& rhs) const {
             return magnitude() > rhs.magnitude();
         }
-        template <typename rhs_vec_t>
-        constexpr mz_force_inline bool operator>=(const rhs_vec_t& rhs) const {
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator>=(const vec2<rhs_value_t>& rhs) const {
             return magnitude() >= rhs.magnitude();
+        }
+
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator<(const rhs_value_t& rhs) const {
+            return magnitude() < (value_t)rhs;
+        }
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator<=(const rhs_value_t& rhs) const {
+            return magnitude() <= (value_t)rhs;
+        }
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator>(const rhs_value_t& rhs) const {
+            return magnitude() > (value_t)rhs;
+        }
+        template <typename rhs_value_t>
+        constexpr mz_force_inline bool operator>=(const rhs_value_t& rhs) const {
+            return magnitude() >= (value_t)rhs;
         }
     };
 
@@ -309,6 +362,9 @@ namespace mz {
         constexpr mz_force_inline value_t magnitude() const {
             return sqrt(x * x + y * y + z * z);
         }
+        constexpr mz_force_inline value_t average() const {
+            return (x + y + z) / (value_t)3;
+        }
         constexpr mz_force_inline vec_type normalize() const {
             value_t mag = magnitude();
             return vec_type(x / mag, y / mag, z / mag);
@@ -336,8 +392,8 @@ namespace mz {
                 x += rhs.x;
                 y += rhs.y;
                 z += rhs.z;
+                return *this;
             }
-            return *this;
         }
         template <typename rhs_vec_t>
         constexpr mz_force_inline vec_type& subtract(const rhs_vec_t& rhs) {
@@ -400,11 +456,8 @@ namespace mz {
             return *this;
         }
 
-        constexpr mz_force_inline vec_type operator-() {
-            x = -x;
-            y = -y;
-            z = -z;
-            return *this;
+        constexpr mz_force_inline vec_type operator-() const {
+            return vec_type(-x, -y, -z);
         }
 
         template <typename rhs_candidate_t>
@@ -487,6 +540,8 @@ namespace mz {
         constexpr mz_force_inline vec4(value_t scalar) : x(scalar), y(scalar), z(scalar), w(scalar) {}
         template <typename value_xy_t, typename value_z_t, typename value_w_t>
         constexpr mz_force_inline vec4(const vec2<value_xy_t>& xy, value_z_t z, value_w_t w = (value_w_t)0) : x((value_t)xy.x), y((value_t)xy.y), z((value_t)z), w((value_t)w) {}
+        template <typename value_xy_t, typename value_zw_t>
+        constexpr mz_force_inline vec4(const vec2<value_xy_t>& xy, const vec2<value_zw_t>& zw) : x((value_t)xy.x), y((value_t)xy.y), z((value_t)zw.x), w((value_t)zw.y) {}
         template <typename value_xyz_t, typename value_w_t>
         constexpr mz_force_inline vec4(const vec3<value_xyz_t>& xyz, value_w_t w) : x((value_t)xyz.x), y((value_t)xyz.y), z((value_t)xyz.z), w((value_t)w) {}
         template <typename rhs_value_t>
@@ -500,7 +555,10 @@ namespace mz {
             value_t ptr[4];
             struct { value_t x, y, z, w; };
             struct { value_t r, g, b, a; };
+            struct { value_t ax, ay, bx, by; };
+            struct { vec2<value_t> p1; vec2<value_t> p2; };
             struct { value_t x_coord, y_coord, width, height; };
+            struct { vec2<value_t> pos; vec2<value_t> size; };
             vec2<value_t> v2;
             vec3<value_t> v3;
         };
@@ -516,6 +574,9 @@ namespace mz {
 
         constexpr mz_force_inline value_t magnitude() const {
             return sqrt(x * x + y * y + z * z + w * w);
+        }
+        constexpr mz_force_inline value_t average() const {
+            return (x + y + z + w) / (value_t)4;
         }
         constexpr mz_force_inline vec_type normalize() const {
             value_t mag = magnitude();
@@ -542,8 +603,8 @@ namespace mz {
                 y += rhs.y;
                 z += rhs.z;
                 w += rhs.w;
+                return *this;
             }
-            return *this;
         }
         template <typename rhs_vec_t>
         constexpr mz_force_inline vec_type& subtract(const rhs_vec_t& rhs) {
@@ -613,12 +674,8 @@ namespace mz {
             return *this;
         }
 
-        constexpr mz_force_inline vec_type operator-() {
-            x = -x;
-            y = -y;
-            z = -z;
-            w = -w;
-            return *this;
+        constexpr mz_force_inline vec_type operator-() const {
+            return vec_type(-x, -y, -z, -w);
         }
 
         template <typename rhs_candidate_t>
@@ -684,12 +741,21 @@ namespace mz {
         constexpr mz_force_inline bool operator>=(const rhs_vec_t& rhs) const {
             return magnitude() >= rhs.magnitude();
         }
+
+        constexpr mz_force_inline value_t left()   const { return x; }
+        constexpr mz_force_inline value_t right()  const { return x + width; }
+        constexpr mz_force_inline value_t bottom() const { return y; }
+        constexpr mz_force_inline value_t top()    const { return y + height; }
     };
     constexpr color COLOR_WHITE       = color(1.f);
     constexpr color COLOR_TRANSPARENT = color(0.f);
     constexpr color COLOR_BLUE        = color(.1f, .1f, .8f, 1.f);
     constexpr color COLOR_DARKGREY    = color(.2f, .2f, .2f, 1.f);
     constexpr color COLOR_RED         = color(.8f, .1f, .1f, 1.f);
+    constexpr color COLOR_CYAN        = color(.2f, .6f, 1.f, 1.f);
+    constexpr color COLOR_GREEN       = color(.1f, .9f, .1f, 1.f);
+    constexpr color COLOR_YELLOW      = color(.8f, .8f, .1f, 1.f);
+    constexpr color COLOR_ORANGE      = color(.9f, .5f, .1f, 1.f);
 
     template<typename TStream, typename value_t>
     inline TStream& operator<<(TStream& str, const vec2<value_t>& v) {
