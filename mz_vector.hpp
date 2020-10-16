@@ -106,6 +106,12 @@ namespace mz {
     typedef ray2d<f32> fray2d;
     typedef ray2d<s32> iray2d;
 
+    template <typename value_t>
+    using range = vec2<value_t>; 
+
+    typedef range<f32> frange;
+    typedef range<s32> irange;
+
     template <typename value_t = default_value_t>
     struct vec2 {
         typedef value_t       value_type;
@@ -130,11 +136,12 @@ namespace mz {
             value_t ptr[2];
             struct { value_t x, y; };
             struct { value_t r, g; };
+            struct { value_t min, max; };
             struct { value_t width, height; };
         };
 
         constexpr mz_force_inline value_t magnitude() const {
-            return sqrt(x * x + y * y);
+            return (value_t)sqrt((f64)x * (f64)x + (f64)y * (f64)y);
         }
         constexpr mz_force_inline value_t average() const {
             return (x + y) / (value_t)2;
@@ -248,7 +255,7 @@ namespace mz {
                 return lhs.divide((value_t)rhs);
             else 
                 return lhs.divide((vec_type)rhs);
-        }   
+        }  
 
         template <typename rhs_candidate_t>
         constexpr mz_force_inline vec_type& operator+=(const rhs_candidate_t& rhs) {
@@ -321,6 +328,11 @@ namespace mz {
         template <typename rhs_value_t>
         constexpr mz_force_inline bool operator>=(const rhs_value_t& rhs) const {
             return magnitude() >= (value_t)rhs;
+        }
+
+        template <typename angle_t>
+        static inline vec_type from_angle(angle_t angle) {
+            return { (value_t)std::cos((f64)angle), (value_t)std::sin((f64)angle) };
         }
     };
 
@@ -781,4 +793,34 @@ namespace mz {
                << ", w: " << __d_p(5) << v.w
                << " }";
     }
+}
+
+namespace std {
+
+    template <typename value_t>
+    struct hash<mz::vec2<value_t>>
+    {
+        size_t operator()(const mz::vec2<value_t> x) const
+        {
+            return std::hash<value_t>()(x.magnitude());
+        }
+    };
+
+    template <typename value_t>
+    struct hash<mz::vec3<value_t>>
+    {
+        size_t operator()(const mz::vec3<value_t> x) const
+        {
+            return std::hash<value_t>()(x.magnitude());
+        }
+    };
+
+    template <typename value_t>
+    struct hash<mz::vec4<value_t>>
+    {
+        size_t operator()(const mz::vec4<value_t> x) const
+        {
+            return std::hash<value_t>()(x.magnitude());
+        }
+    };
 }
