@@ -30,7 +30,7 @@ SOFTWARE.
 namespace mz {
     template <typename lhs_t, typename rhs_t>
     constexpr inline bool rect_contains(const rect<lhs_t>& r, const vec2<rhs_t>& p) {
-        static_assert(std::is_convertible<lhs_t, rhs_t>() || std::is_convertible<rhs_t, lhs_t>, "mz::contains: types are not convertible");
+        static_assert(std::is_convertible<lhs_t, rhs_t>() || std::is_convertible<rhs_t, lhs_t>(), "mz::contains: types are not convertible");
         if constexpr (std::is_convertible<lhs_t, rhs_t>()) {
             return p.x > (rhs_t)r.left() && p.x < (rhs_t)r.right() && p.y > (rhs_t)r.bot() && p.y < (rhs_t)r.top();
         } else {
@@ -40,7 +40,7 @@ namespace mz {
 
     template <typename lhs_t, typename rhs_t>
     constexpr inline bool rects_intersect(const rect<lhs_t>& a, const rect<rhs_t>& b) {
-        static_assert(std::is_convertible<lhs_t, rhs_t>() || std::is_convertible<rhs_t, lhs_t>, "mz::intersects: types are not convertible");
+        static_assert(std::is_convertible<lhs_t, rhs_t>() || std::is_convertible<rhs_t, lhs_t>(), "mz::intersects: types are not convertible");
 
         if constexpr (std::is_convertible<lhs_t, rhs_t>()) {
             return (rhs_t)a.left()   < b.right() && (rhs_t)a.right() > b.left() 
@@ -53,7 +53,7 @@ namespace mz {
 
     template <typename lhs_t, typename rhs_t, typename intersection_t = f32>
     constexpr inline bool ray2ds_intersect(const ray2d<lhs_t>& a, const ray2d<rhs_t>& b, const vec2<intersection_t>* intersection = NULL) {
-        static_assert(std::is_convertible<lhs_t, rhs_t>() || std::is_convertible<rhs_t, lhs_t>, "mz::intersects: types are not convertible");
+        static_assert(std::is_convertible<lhs_t, rhs_t>() || std::is_convertible<rhs_t, lhs_t>(), "mz::intersects: types are not convertible");
 
         if constexpr (std::is_convertible<lhs_t, rhs_t>()) {
             rhs_t s1_x, s1_y, s2_x, s2_y;

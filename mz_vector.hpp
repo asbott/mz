@@ -594,7 +594,6 @@ namespace mz {
             struct { value_t x, y, z, w; };
             struct { value_t r, g, b, a; };
             struct { value_t ax, ay, bx, by; };
-            struct { value_t a, b, c, d; };
             struct { vec2<value_t> p1; vec2<value_t> p2; };
             struct { value_t x_coord, y_coord, width, height; };
             struct { vec2<value_t> pos; vec2<value_t> size; };
