@@ -22,3 +22,16 @@
 #ifdef _MSVC_LANG
     #pragma warning(disable: 4201)
 #endif
+
+            
+
+#ifdef MZ_DLL
+    #ifdef MZ_EXPORT
+        #define MZ_API __declspec(dllexport)
+    #else
+        #define MZ_API __declspec(dllimport)
+    #endif
+#else
+    #define MZ_API 
+#endif
+

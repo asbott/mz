@@ -139,7 +139,7 @@ namespace mz {
     typedef range<s32> irange;
 
     template <typename value_t = default_value_t>
-    struct vec2 {
+    struct MZ_API vec2 {
         typedef value_t       value_type;
         typedef vec2<value_t> vec_type;
 
@@ -363,7 +363,7 @@ namespace mz {
     };
 
     template <typename value_t = default_value_t>
-    struct vec3 {
+    struct MZ_API vec3 {
         typedef value_t value_type;
         typedef vec3<value_t> vec_type;
 
@@ -564,7 +564,7 @@ namespace mz {
     };
 
     template <typename value_t = default_value_t>
-    struct vec4 {
+    struct MZ_API vec4 {
         typedef value_t value_type;
         typedef vec4<value_t> vec_type;
 

@@ -33,7 +33,7 @@ SOFTWARE.
 namespace mz {
 
     template <typename value_t>
-    struct mat4 {
+    struct MZ_API mat4 {
         typedef mat4<value_t> mat_type;
         typedef vec4<value_t> vec4_type;
         typedef vec3<value_t> vec3_type;
