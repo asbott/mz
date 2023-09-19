@@ -17,3 +17,8 @@
 #ifndef mz_force_inline
     #define mz_force_inline inline
 #endif
+
+
+#ifdef _MSVC_LANG
+    #pragma warning(disable: 4201)
+#endif
