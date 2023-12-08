@@ -165,6 +165,9 @@ namespace mz {
             struct { value_t min, max; };
             struct { value_t width, height; };
         };
+        operator value_t*() {
+            return ptr;
+        }
 
         constexpr mz_force_inline value_t magnitude() const {
             return (value_t)sqrt((f64)x * (f64)x + (f64)y * (f64)y);
@@ -174,7 +177,10 @@ namespace mz {
         }
         constexpr mz_force_inline vec_type normalize() const {
             value_t mag = magnitude();
-            return vec_type(x / mag, y / mag);
+            return mag ? vec_type(x / mag, y / mag) : vec_type(0);
+        }
+        constexpr mz_force_inline vec_type abs() const {
+            return vec_type(x < (value_t)0 ? x * (value_t)-1 : x, y < (value_t)0 ? y * (value_t)-1 : y);
         }
         constexpr mz_force_inline value_t distance(const vec_type& rhs) const {
             value_t a = x - rhs.x;
@@ -389,8 +395,14 @@ namespace mz {
             struct { value_t x, y, z; };
             struct { value_t r, g, b; };
             struct { value_t width, height, depth; };
+            struct { vec2<value_t> xy; value_t zz;  };
+            struct { value_t xx; vec2<value_t> yz; };
             vec2<value_t> v2;
         };
+
+        operator value_t*() {
+            return ptr;
+        }
 
         template <typename other_value_t>
         inline operator vec2<other_value_t>& () {
@@ -405,7 +417,10 @@ namespace mz {
         }
         constexpr mz_force_inline vec_type normalize() const {
             value_t mag = magnitude();
-            return vec_type(x / mag, y / mag, z / mag);
+            return mag ? vec_type(x / mag, y / mag, z / mag) : vec_type(0);
+        }
+        constexpr mz_force_inline vec_type abs() const {
+            return vec_type(x < (value_t)0 ? x * (value_t)-1 : x, y < (value_t)0 ? y * (value_t)-1 : y, z < (value_t)0 ? z * (value_t)-1 : z);
         }
         constexpr mz_force_inline value_t distance(const vec_type& rhs) const {
             value_t a = x - rhs.x;
@@ -592,14 +607,22 @@ namespace mz {
         union {
             value_t ptr[4];
             struct { value_t x, y, z, w; };
+            struct { value_t left, bottom, right, top; };
+            struct { value_t x1, y1, x2, y2; };
             struct { value_t r, g, b, a; };
             struct { value_t ax, ay, bx, by; };
             struct { vec2<value_t> p1; vec2<value_t> p2; };
             struct { value_t x_coord, y_coord, width, height; };
             struct { vec2<value_t> pos; vec2<value_t> size; };
+            struct { vec2<value_t> xy; vec2<value_t> zw; };
+            struct { vec3<value_t> xyz; };
+            struct { value_t xx; vec3<value_t> yzw; };
             vec2<value_t> v2;
             vec3<value_t> v3;
         };
+        operator value_t*() {
+            return ptr;
+        }
 
         template <typename other_value_t>
         inline operator vec2<other_value_t>& () {
@@ -616,9 +639,15 @@ namespace mz {
         constexpr mz_force_inline value_t average() const {
             return (x + y + z + w) / (value_t)4;
         }
+        constexpr mz_force_inline vec2<value_t> center() const {
+            return vec2<value_t>{ z - (z - x) / 2.f, w - (w - y) / 2.f };
+        }
         constexpr mz_force_inline vec_type normalize() const {
             value_t mag = magnitude();
-            return vec_type(x / mag, y / mag, z / mag, w / mag);
+            return mag ? vec_type(x / mag, y / mag, z / mag, w / mag) : vec_type(0);
+        }
+        constexpr mz_force_inline vec_type abs() const {
+            return vec_type(x < (value_t)0 ? x * (value_t)-1 : x, y < (value_t)0 ? y * (value_t)-1 : y, z < (value_t)0 ? z * (value_t)-1 : z, w < (value_t)0 ? w * (value_t)-1 : w);
         }
         constexpr mz_force_inline value_t distance(const vec_type& rhs) const {
             value_t a = x - rhs.x;
@@ -779,21 +808,40 @@ namespace mz {
         constexpr mz_force_inline bool operator>=(const rhs_vec_t& rhs) const {
             return magnitude() >= rhs.magnitude();
         }
-
-        constexpr mz_force_inline value_t left()   const { return x; }
-        constexpr mz_force_inline value_t right()  const { return x + width; }
-        constexpr mz_force_inline value_t bottom() const { return y; }
-        constexpr mz_force_inline value_t top()    const { return y + height; }
     };
-    constexpr color COLOR_WHITE       = color(1.f);
-    constexpr color COLOR_TRANSPARENT = color(0.f);
-    constexpr color COLOR_BLUE        = color(.1f, .1f, .8f, 1.f);
-    constexpr color COLOR_DARKGREY    = color(.2f, .2f, .2f, 1.f);
-    constexpr color COLOR_RED         = color(.8f, .1f, .1f, 1.f);
-    constexpr color COLOR_CYAN        = color(.2f, .6f, 1.f, 1.f);
-    constexpr color COLOR_GREEN       = color(.1f, .9f, .1f, 1.f);
-    constexpr color COLOR_YELLOW      = color(.8f, .8f, .1f, 1.f);
-    constexpr color COLOR_ORANGE      = color(.9f, .5f, .1f, 1.f);
+    constexpr color COLOR_WHITE         = color(1.f);
+    constexpr color COLOR_BLACK         = color(0.f, 0.f, 0.f, 1.f);
+    constexpr color COLOR_TRANSPARENT   = color(0.f);
+    constexpr color COLOR_BLUE          = color(.1f, .1f, .8f, 1.f);
+    constexpr color COLOR_DARKGREY      = color(.2f, .2f, .2f, 1.f);
+    constexpr color COLOR_RED           = color(.8f, .1f, .1f, 1.f);
+    constexpr color COLOR_CYAN          = color(.2f, .6f, 1.f, 1.f);
+    constexpr color COLOR_DARKGREEN     = color(.05f, .5f, .05f, 1.f);
+    constexpr color COLOR_GREEN         = color(.1f, .9f, .1f, 1.f);
+    constexpr color COLOR_LIGHTGREEN    = color(.4f, .95f, .4f, 1.f);
+    constexpr color COLOR_YELLOW        = color(.8f, .8f, .1f, 1.f);
+    constexpr color COLOR_ORANGE        = color(.9f, .5f, .1f, 1.f);
+    constexpr color COLOR_PURPLE        = color(.5f, .1f, .8f, 1.f);
+    constexpr color COLOR_PINK          = color(1.f, .4f, .7f, 1.f);
+    constexpr color COLOR_BROWN         = color(.6f, .4f, .2f, 1.f);
+    constexpr color COLOR_LIGHTBLUE     = color(.4f, .6f, 1.f, 1.f);
+    constexpr color COLOR_DARKRED       = color(.5f, .1f, .1f, 1.f);
+    constexpr color COLOR_MINT          = color(.2f, 1.f, .5f, 1.f);
+    constexpr color COLOR_LIME          = color(.5f, 1.f, .1f, 1.f);
+    constexpr color COLOR_GOLD          = color(.8f, .7f, .1f, 1.f);
+    constexpr color COLOR_PEACH         = color(1.f, .8f, .6f, 1.f);
+    constexpr color COLOR_LAVENDER      = color(.7f, .5f, 1.f, 1.f);
+    constexpr color COLOR_TEAL          = color(.1f, .6f, .6f, 1.f);
+    constexpr color COLOR_OLIVE         = color(.5f, .6f, .1f, 1.f);
+    constexpr color COLOR_NAVY          = color(.1f, .2f, .5f, 1.f);
+    constexpr color COLOR_CHARTREUSE    = color(.5f, 1.f, 0.f, 1.f);
+    constexpr color COLOR_CORAL         = color(1.f, .5f, .3f, 1.f);
+    constexpr color COLOR_INDIGO        = color(.3f, .1f, .5f, 1.f);
+    constexpr color COLOR_MAROON        = color(.5f, .1f, .3f, 1.f);
+    constexpr color COLOR_VIOLET        = color(.5f, .1f, 1.f, 1.f);
+    constexpr color COLOR_CRIMSON       = color(.9f, .1f, .2f, 1.f);
+    constexpr color COLOR_BEIGE         = color(.9f, .9f, .6f, 1.f);
+    constexpr color COLOR_TURQUOISE     = color(.3f, .8f, .8f, 1.f);
 
     template<typename TStream, typename value_t>
     inline TStream& operator<<(TStream& str, const vec2<value_t>& v) {
@@ -824,29 +872,35 @@ namespace mz {
 namespace std {
 
     template <typename value_t>
-    struct hash<mz::vec2<value_t>>
-    {
-        size_t operator()(const mz::vec2<value_t> x) const
-        {
-            return std::hash<value_t>()(x.magnitude());
+    struct hash<mz::vec2<value_t>> {
+        size_t operator()(const mz::vec2<value_t>& vec) const {
+            size_t seed = 0;
+            seed ^= std::hash<value_t>()(vec.x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= std::hash<value_t>()(vec.y) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            return seed;
         }
     };
 
     template <typename value_t>
-    struct hash<mz::vec3<value_t>>
-    {
-        size_t operator()(const mz::vec3<value_t> x) const
-        {
-            return std::hash<value_t>()(x.magnitude());
+    struct hash<mz::vec3<value_t>> {
+        size_t operator()(const mz::vec3<value_t>& vec) const {
+            size_t seed = 0;
+            seed ^= std::hash<value_t>()(vec.x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= std::hash<value_t>()(vec.y) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= std::hash<value_t>()(vec.z) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            return seed;
         }
     };
 
     template <typename value_t>
-    struct hash<mz::vec4<value_t>>
-    {
-        size_t operator()(const mz::vec4<value_t> x) const
-        {
-            return std::hash<value_t>()(x.magnitude());
+    struct hash<mz::vec4<value_t>> {
+        size_t operator()(const mz::vec4<value_t>& vec) const {
+            size_t seed = 0;
+            seed ^= std::hash<value_t>()(vec.x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= std::hash<value_t>()(vec.y) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= std::hash<value_t>()(vec.z) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= std::hash<value_t>()(vec.w) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            return seed;
         }
     };
 }

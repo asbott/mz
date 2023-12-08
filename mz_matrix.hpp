@@ -37,6 +37,7 @@ namespace mz {
         typedef mat4<value_t> mat_type;
         typedef vec4<value_t> vec4_type;
         typedef vec3<value_t> vec3_type;
+        typedef vec2<value_t> vec2_type;
 
         union {
             value_t data[4 * 4];
@@ -79,28 +80,26 @@ namespace mz {
             return *this;
         }
 
-        mz_force_inline vec3_type multiply(const vec3_type& vec) const {
-            return multiply((vec4_type)vec);
-        }
-
         mz_force_inline vec4_type multiply(const vec4_type& vec) const {
-            vec3_type c1 = { rows[0].x, rows[1].x, rows[2].x };
-            vec3_type c2 = { rows[0].y, rows[1].y, rows[2].y };
-            vec3_type c3 = { rows[0].z, rows[1].z, rows[2].z };
-            vec3_type c4 = { rows[0].w, rows[1].w, rows[2].w };
-
-            vec4_type const mov0(vec.x);
-            vec4_type const mov1(vec.y);
-            vec4_type const mul0 = c1 * mov0;
-            vec4_type const mul1 = c2 * mov1;
-            vec4_type const add0 = mul0 + mul1;
-            vec4_type const mov2(vec.z);
-            vec4_type const mov3(vec.w);
-            vec4_type const mul2 = c3 * mov2;
-            vec4_type const mul3 = c4 * mov3;
-            vec4_type const add1 = mul2 + mul3;
-            vec4_type const add2 = add0 + add1;
-            return add2;
+            return {
+                rows[0].x * vec.x + rows[0].y * vec.y + rows[0].z * vec.z + rows[0].w * vec.w,
+                rows[1].x * vec.x + rows[1].y * vec.y + rows[1].z * vec.z + rows[1].w * vec.w,
+                rows[2].x * vec.x + rows[2].y * vec.y + rows[2].z * vec.z + rows[2].w * vec.w,
+                rows[3].x * vec.x + rows[3].y * vec.y + rows[3].z * vec.z + rows[3].w * vec.w
+            };
+        }
+        mz_force_inline vec3_type multiply(const vec3_type& vec) const {
+            return {
+                rows[0].x * vec.x + rows[0].y * vec.y + rows[0].z * vec.z + rows[0].w,
+                rows[1].x * vec.x + rows[1].y * vec.y + rows[1].z * vec.z + rows[1].w,
+                rows[2].x * vec.x + rows[2].y * vec.y + rows[2].z * vec.z + rows[2].w
+            };
+        }
+        mz_force_inline vec2_type multiply(const vec2_type& vec) const {
+            return {
+                rows[0].x * vec.x + rows[0].y * vec.y + rows[0].w,
+                rows[1].x * vec.x + rows[1].y * vec.y + rows[1].w
+            };
         }
 
         mz_force_inline friend mat_type operator*(mat_type left, const mat_type& right) {
@@ -109,6 +108,10 @@ namespace mz {
 
         mz_force_inline mat_type& operator*=(const mat_type& other) {
             return multiply(other);
+        }
+
+        mz_force_inline friend vec2_type operator*(const mat_type& left, const vec2_type& right) {
+            return left.multiply(right);
         }
 
         mz_force_inline friend vec3_type operator*(const mat_type& left, const vec3_type& right) {
@@ -189,10 +192,12 @@ namespace mz {
         }
 
         mz_force_inline mat_type& transpose() {
-            rows[0] = vec4<value_t>(rows[0].x, rows[1].x, rows[2].x, rows[3].x);
-            rows[1] = vec4<value_t>(rows[0].y, rows[1].y, rows[2].y, rows[3].y);
-            rows[2] = vec4<value_t>(rows[0].z, rows[1].z, rows[2].z, rows[3].z);
-            rows[3] = vec4<value_t>(rows[0].w, rows[1].w, rows[2].w, rows[3].w);
+            mat_type temp = *this;
+
+            rows[0] = vec4<value_t>(temp.rows[0].x, temp.rows[1].x, temp.rows[2].x, temp.rows[3].x);
+            rows[1] = vec4<value_t>(temp.rows[0].y, temp.rows[1].y, temp.rows[2].y, temp.rows[3].y);
+            rows[2] = vec4<value_t>(temp.rows[0].z, temp.rows[1].z, temp.rows[2].z, temp.rows[3].z);
+            rows[3] = vec4<value_t>(temp.rows[0].w, temp.rows[1].w, temp.rows[2].w, temp.rows[3].w);
 
             return *this;
         }
